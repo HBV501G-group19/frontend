@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-const Section = styled.header`
+const Section = styled.section`
     background: rgba(255, 255, 255);
     display: flex;
     z-index: 2000;

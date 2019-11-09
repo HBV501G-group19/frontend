@@ -1,8 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Input } from '../../../components/input'
-import { Sidebar } from '../../../components/sidebar'
+import { Input } from '../../../components/forms/input'
 import { StyledLink as Link, Button, ButtonContainer } from '../../../components/styles'
 
 const Form = styled.form`

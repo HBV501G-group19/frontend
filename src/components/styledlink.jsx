@@ -7,7 +7,8 @@ const buttonStyle = `
     color: white;
     border: 0;
     border-radius: 3px;
-    margin: 5px;
+    margin: 0.33em;
+    padding: 0.66em
     cursor: pointer;
 `
 

@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -6,11 +5,11 @@ const buttonStyle = `
     background: black;
     color: white;
     border: 0;
-    border-radius: 0.3rem;
-    margin: 0.3rem;
+    border-radius: 3px;
+    margin: 0.33rem;
     cursor: pointer;
     font-size: 1rem;
-    padding: 0.3rem;
+    padding: 0.66rem;
     display: flex;
     justify-content: center;
     align-items: center;

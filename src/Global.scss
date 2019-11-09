@@ -1,0 +1,30 @@
+$font-main: 'Open Sans', sans-serif;
+$font-heading: 'Raleway', sans-serif;
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 16px;
+  font-family: $font-main;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-heading;
+  font-weight: 600;
+}
+.map-marker-icon {
+  background: red;
+  border-radius: 100%;
+  border: 3px #d00, solid;
+  
+  &--blue {
+    background: #4e4eff;
+    border-color: #3636ff;
+  }
+}
+
+
