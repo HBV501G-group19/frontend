@@ -34,10 +34,10 @@ export const usePostReq = (path, auth) => {
       setLoading(true)
       const headers = {
         'Content-type': 'application/json',
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`
+        Accept: 'application/json'
       }
 
+      if (authenticated) headers.Authorization = `Bearer ${token}`
       try {
         const response = await fetch(url, {
           method: 'POST',
@@ -66,7 +66,7 @@ export const usePostReq = (path, auth) => {
     }
 
     let mounted = true
-    if (mounted && body && !loading &&  authenticated)
+    if (mounted && body && !loading)
       getData()
 
     return () => {

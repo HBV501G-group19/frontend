@@ -9,7 +9,6 @@ export const Logout = props => {
   useEffect(() => {
     removeAuth()
     setRedirect(true)
-    console.log('owowo')
   }, [authenticated, setRedirect])
   
   if (redirect) {

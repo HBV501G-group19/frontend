@@ -12,7 +12,6 @@ export const useLogin = () => {
   const [password, setPassword] = useState(null)
 
   const login = (u, p) => {
-    console.log('yall called', username, password)
     setUsername(u)
     setPassword(p)
   }
@@ -32,8 +31,7 @@ export const useLogin = () => {
   }, [username, password, setBody])
 
   useEffect(() => {
-    if(!loading && data) {
-      if (data.status === 200) {
+      if (data && data.status === 200) {
         const {body: {token, username, id}} = data
         setAuth({username, id}, token)
         setStatus({
@@ -46,7 +44,6 @@ export const useLogin = () => {
           loading
         })
       }
-    }
   }, [loading, data, setAuth])
   return {status, data, login, logout}
 }

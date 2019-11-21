@@ -1,13 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Input } from '../../../components/forms/input'
+import { Grid } from '@material-ui/core'
+import { Input, Form } from '../../../components/forms/input'
 import { StyledLink as Link, Button, ButtonContainer } from '../../../components/styles'
 
-const Form = styled.form`
-    display: flex;
-    flex-direction: column;
-`
 export const RegisterForm = ({
     submit,
     email,
@@ -17,7 +14,6 @@ export const RegisterForm = ({
     password,
     setPassword,
     confirm,
-    
     setConfirm
 }) => {
     return (
@@ -26,31 +22,33 @@ export const RegisterForm = ({
             <Form onSubmit={submit}>
                 <Input
                     value={username}
-                    setValue={setUsername}
+                    onChange={setUsername}
                     label="Username"
                 />
                 <Input
                     value={email}
-                    setValue={setEmail}
+                    onChange={setEmail}
                     label="Email"
                     placeholder="example@example.org"
                 />
                 <Input
                     value={password}
-                    setValue={setPassword}
+                    onChange={setPassword}
                     type="password"
                     label="Password"
                 />
                 <Input
                     value={confirm}
-                    setValue={setConfirm}
+                    onChange={setConfirm}
                     type="password"
                     label="Confirm your password"
                 />
-                <ButtonContainer>
-                    <Button>Submit</Button>
+                <Grid
+                  container
+                >
+                    <Button type="submit">Submit</Button>
                     <Link to="/login">Login</Link>
-                </ButtonContainer>
+                </Grid>
             </Form>
         </>
     )

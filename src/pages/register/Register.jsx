@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Redirect } from "react-router-dom"
 
+import { AuthenticationContext } from '../../context/Authentication'
 import { usePostReq } from '../../hooks/usePostReq'
 
 import { RegisterForm } from './components/registerForm'
 import { ValidationList } from '../../components/forms'
 
-const authenticated = false
-
 export const Register = props => {
+  const {authenticated} = useContext(AuthenticationContext)
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -22,7 +22,7 @@ export const Register = props => {
 
     const submit = e => {
         e.preventDefault()
-        setBody({
+      setBody({
             username,
             password
         })
@@ -31,7 +31,6 @@ export const Register = props => {
     if (data && data.status === 200) return <Redirect to="/login" />
     if (authenticated) return <Redirect to="/" />
 
-    console.log(data)
     return (
     <>
         { loading ? <p>Loading...</p> : null }

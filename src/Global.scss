@@ -1,5 +1,9 @@
 $font-main: 'Open Sans', sans-serif;
 $font-heading: 'Raleway', sans-serif;
+$marker-blue-background: #173159;
+$marker-blue-border: #001b43;
+$marker-red-background: #d63500;
+$marker-red-border: #b02c00;
 
 * {
   margin: 0;
@@ -16,14 +20,20 @@ h1, h2, h3, h4, h5, h6 {
   font-family: $font-heading;
   font-weight: 600;
 }
-.map-marker-icon {
-  background: red;
+.marker-icon {
   border-radius: 100%;
-  border: 3px #d00, solid;
-  
+  border: 3px solid;
+  width: 50px;
+  height: 50px;
+  box-sizing: border-box;
   &--blue {
-    background: #4e4eff;
-    border-color: #3636ff;
+    background: $marker-blue-background;
+    border-color: $marker-blue-border;
+  }
+
+  &--red {
+    background: $marker-red-background;
+    border-color: $marker-red-border;
   }
 }
 

@@ -27,15 +27,17 @@ const useLocalStorage = (key, init) => {
 export const Authentication = ({children}) => {
   const [user, setUser] = useLocalStorage('user', null)
   const [token, setToken] = useLocalStorage('token', null)
-  const [authenticated, setAuthenticated] = useState(false)
+  const [authenticated, setAuthenticated] = useState(null)
 
   const setAuth = (u, t) => {
-    setUser(u)
+    setUser({
+      username: u.username,
+      id: Number(u.id)
+    })
     setToken(t)
   }
 
   const removeAuth = () => {
-    console.log('yahey')
     setAuthenticated(false)
     setUser(null)
     setToken(null)
@@ -48,6 +50,7 @@ export const Authentication = ({children}) => {
       setAuthenticated(false)
     }
   }, [user, token, setAuthenticated])
+
   const auth = {authenticated, user, token, setAuth, removeAuth}
   return (
     <AuthenticationContext.Provider value={auth}>

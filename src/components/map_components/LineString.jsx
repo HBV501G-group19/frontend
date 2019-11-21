@@ -1,52 +1,42 @@
-import React, {useEffect, useContext, useState, createElement} from 'react'
+import React, {useEffect, useContext, useState} from 'react'
 import L from 'leaflet'
 import { MapContext } from '../../context/Map'
 
-export const Marker = ({
-	coordinates, options,
-	color = 'blue',
-	tooltip,
-	hover = false,
-	onHover,
-	onClick
-}) => {
+export const LineString = ({coordinates, options = {}, tooltip, hover = false, onHover, onClick}) => {
   const map = useContext(MapContext)
-	const [marker, setMarker] = useState(null)
-
+  const [lineString, setLineString] = useState(null)
+	let iconClass = 'map-marker-icon'
+	iconClass += options.blue ? ' map-marker-icon--blue' : ''
 	useEffect(() => {
-		if (map) {
-			const m = L.marker(coordinates, {
+    if (map) {
+      const rCoords = coordinates.map(coord => coord.slice().reverse())
+			const l = L.polyline(rCoords, {
 				...options,
-				icon: L.divIcon({className:
-					`marker-icon marker-icon--${color}`,
-					iconSize: 12
-				})
+				icon: L.divIcon({className: iconClass})
       })
 
-			m.addTo(map)
-			m.on('click', onClick)
+			l.addTo(map)
+			l.on('click', onClick)
 			if (tooltip) {
-				m.bindTooltip(tooltip)
-				m.on('tooltipopen', () => {onHover(true)})
-				m.on('tooltipclose', () => {onHover(false)})
+				l.bindTooltip(tooltip)
+				l.on('tooltipopen', () => {onHover(true)})
+				l.on('tooltipclose', () => {onHover(false)})
 			}
-      setMarker(m)
+      setLineString(l)
 
-			return () => {
-				m.off('click')
-				m.off('tooltipopen')
-				m.off('tooltipclose')
-        m.remove()
+      return () => {
+        l.off('click')
+        l.remove()
       }
 		}
-	}, [coordinates, options, map, setMarker])
+	}, [])
 
 	useEffect(() => {
-		if(marker) {
-			if (hover) marker.openTooltip()
-			else marker.closeTooltip()
+		if(lineString) {
+			if (hover) lineString.openTooltip()
+			else lineString.closeTooltip()
 		}
-	}, [marker, hover])
+	}, [lineString, hover])
 	return null
 }
 
