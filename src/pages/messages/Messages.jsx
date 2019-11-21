@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
 import { AuthenticationContext } from "../../context/Authentication";
 import { useConversationList } from "../../hooks/useData";
-import { Column } from "../../components/styles";
-import { ConversationList } from "./ConversationList";
+import { Column, Heading } from "../../components/styles";
+import { ConversationList } from "./components/ConversationList";
 import { useInterval } from "web-api-hooks";
 import { LinearProgress } from "@material-ui/core";
 
@@ -22,7 +22,7 @@ export const Messages = props => {
 
 	return (
 		<Column>
-			<h2>Messages</h2>
+			<Heading>Messages</Heading>
 			{isPending && conversations.length === 0 && <LinearProgress />}
 			{error && <p>{error}</p>}
 			<ConversationList user={user} conversations={conversations} />

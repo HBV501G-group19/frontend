@@ -3,7 +3,7 @@ import { useAsync } from "react-async";
 
 import { getRide, createRide } from "../api/rides";
 import { getUser } from "../api/user";
-import { getDirections, getGeocodes } from "../api/ors";
+import { getDirections, getGeocodes, getGeoname } from "../api/ors";
 import { getConversation, getConversationList } from "../api/messages";
 
 const makeDataHook = request => (setState, defer = false, token, ...args) => {
@@ -37,6 +37,7 @@ export const useCreateRide = makeDataHook(createRide);
 
 export const useDirections = makeDataHook(getDirections);
 export const useGeocode = makeDataHook(getGeocodes);
+export const useGeoname = makeDataHook(getGeoname);
 
 export const useConversation = makeDataHook(getConversation);
 export const useConversationList = makeDataHook(getConversationList);

@@ -13,9 +13,11 @@ import { AuthenticationContext } from "../../context/Authentication";
 import { useInterval } from "../../hooks/useInterval";
 import { useRide, useConversation } from "../../hooks/useData";
 
-import { List, Column, Button } from "../../components/styles";
+import { List, Column, Button, Heading } from "../../components/styles";
 import { MessageForm } from "./components/MessageForm";
 import { addPassenger as ap } from "../../api/rides";
+
+import { MessageList } from "./components/MessageList";
 
 const Message = ({ getUser, message }) => (
 	<ListItem>
@@ -49,10 +51,13 @@ export const Conversation = () => {
 	const {
 		error: approveError,
 		isPending: approvePending,
-		run: addPassenger
+		run: runPassenger
 	} = useAsync({
 		deferFn: ap
 	});
+
+	const addPassenger = (rideId, passengerId) =>
+		runPassenger({ rideId, passengerId }, token);
 
 	const {
 		error: convError,
@@ -106,46 +111,22 @@ export const Conversation = () => {
 		}
 	}, [messages]);
 
-	console.log(ride);
 	return (
 		<Column>
-			<h2>Messages</h2>
+			<Heading>Messages</Heading>
 			{ridePending && <LinearProgress />}
 			{sender && recipient && (
 				<>
-					<List>
-						{messages.map(message => (
-							<Message key={message.id} message={message} />
-						))}
-						{ride &&
-							sender.id === ride.driver &&
-							!ride.passengers.includes(recipient.id) && (
-								<ListItem>
-									{approveError && approveError.message}
-									<Button
-										onClick={() => {
-											addPassenger(
-												{
-													rideId: ride.id,
-													passengerId: recipient.id
-												},
-												token
-											);
-										}}
-										disabled={approvePending}
-									>
-										{`Approve ${recipient.name}`}
-									</Button>
-								</ListItem>
-							)}
-						<div
-							ref={scrollRef}
-							style={{
-								height: 0,
-								visibility: "hidden"
-							}}
-						/>
-					</List>
+					<MessageList
+						messages={messages}
+						sender={sender}
+						recipient={recipient}
+						addPassenger={{
+							run: addPassenger,
+							error: approveError,
+							pending: approvePending
+						}}
+					/>
 					<MessageForm sender={sender} recipient={recipient} rideId={rideId} />
 				</>
 			)}

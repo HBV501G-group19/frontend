@@ -21,6 +21,7 @@ import { Ride } from "./pages/rides/Ride";
 import { Conversation } from "./pages/messages/Conversation";
 import { Messages } from "./pages/messages/Messages";
 import { Navbar } from "./components/navbar/Navbar";
+import { RideList } from "./pages/rides/RideList";
 
 const PrivateRoute = ({ path, children }) => {
 	const { authenticated } = useContext(AuthenticationContext);
@@ -101,7 +102,9 @@ const App = () => {
 									<PrivateRoute path="/rides/:id">
 										<Ride />
 									</PrivateRoute>
-
+									<PrivateRoute path="/rides">
+										<RideList />
+									</PrivateRoute>
 									<PrivateRoute path="/messages/:id">
 										<Conversation />
 									</PrivateRoute>

@@ -2,7 +2,7 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import { ListItem, Grid, makeStyles } from "@material-ui/core";
 
-import { List } from "../../components/styles";
+import { List } from "../../../components/styles";
 
 const useStyles = makeStyles({
 	conversation: {
@@ -22,7 +22,7 @@ const ConversationBox = ({ user, recipient, sender, id, pre }) => {
 			className={classes.conversation}
 		>
 			<Grid>
-				<h3>{user.name === sender ? recipient : sender}</h3>
+				<h3>{user.username === sender ? recipient : sender}</h3>
 				<p>
 					<strong>{sender}: </strong>
 					{pre}
@@ -40,8 +40,8 @@ export const ConversationList = ({ conversations, user }) => (
 				id={conversationId}
 				pre={messages[messages.length - 1].body}
 				user={user}
-				sender={messages[0].senderName}
-				recipient={messages[0].recipientName}
+				sender={messages[messages.length - 1].senderName}
+				recipient={messages[messages.length - 1].recipientName}
 			/>
 		))}
 	</List>

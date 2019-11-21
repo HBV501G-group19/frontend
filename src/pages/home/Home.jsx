@@ -1,26 +1,31 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Grid } from "@material-ui/core";
+import { Grid, LinearProgress, Typography } from "@material-ui/core";
 import { AuthenticationContext } from "../../context/Authentication";
-import { StyledLink as Link, Column } from "../../components/styles";
+import { StyledLink as Link, Column, Heading } from "../../components/styles";
 import { useUser } from "../../hooks/useData";
 import { RideInfo } from "../rides/components/RideInfo";
+import { RideSummary } from "../rides/components/RideSummary";
 
 export const Home = props => {
 	const [data, setData] = useState();
 	const [rides, setRides] = useState([]);
 	const [drives, setDrives] = useState([]);
 
-	const { user, token, authenticated } = useContext(AuthenticationContext);
-	const { error, isPending } = useUser(setData, false, token, user.id);
+	const { user, token } = useContext(AuthenticationContext);
+	const { isPending } = useUser(setData, false, token, user.id);
 
 	useEffect(() => {
 		if (data) {
-			const rides = data.rides
-				.filter(ride => ride.departureTime > new Date().toISOString())
-				.sort((a, b) => a.departureTime < b.departureTime);
+			// const rides = data.rides
+			// 	.filter(ride => ride.departureTime > new Date().toISOString())
+			// 	.sort((a, b) => a.departureTime < b.departureTime);
+			const rides = data.rides;
 
 			const drives = data.drives
-				.filter(ride => ride.departureTime > new Date().toISOString())
+				.filter(ride => {
+					console.log(ride.departureTime, new Date().toISOString());
+					return ride.departureTime > new Date().toISOString();
+				})
 				.sort((a, b) => a.departureTime < b.departureTime);
 
 			setRides(rides);
@@ -30,21 +35,30 @@ export const Home = props => {
 
 	return (
 		<Column>
-			<h2>Hopon</h2>
+			<Heading>Hopon</Heading>
 			<p>{`Welcome ${user.username}`}</p>
-			<Grid container justify="center">
+			{isPending && <LinearProgress />}
+			<Grid container>
 				{drives.length ? (
-					<Grid container>
-						<RideInfo ride={drives[0]} driver={{ username: "you babe" }} />
-					</Grid>
+					<>
+						<Typography variance="subtitle2" component="h3">
+							You're next drive:
+						</Typography>
+						<RideSummary ride={drives[0]} user={user} token={token} />
+					</>
 				) : null}
 				{rides.length ? (
-					<Grid container>
-						<RideInfo ride={rides[0]} driver={{ username: "someone else" }} />
-					</Grid>
+					<>
+						<Typography variance="subtitle2" component="h3">
+							You're next ride:
+						</Typography>
+						<RideSummary ride={rides[0]} user={user} token={token} />
+					</>
 				) : null}
-				<Link to="rides/search">I Need a Ride</Link>
-				<Link to="rides/create">I'm Offering a Ride!</Link>
+				<Grid container justify="center">
+					<Link to="rides/search">I Need a Ride</Link>
+					<Link to="rides/create">I'm Offering a Ride!</Link>
+				</Grid>
 			</Grid>
 		</Column>
 	);
