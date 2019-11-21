@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useLocation, useRouteMatch } from "react-router-dom";
 import { LinearProgress } from "@material-ui/core";
 
@@ -32,16 +32,18 @@ const DriverView = ({ user, ride, token }) => {
 		_setConversations(newConvs);
 	};
 
-	const { error, isPending } = useConversationList(
+	const { isPending } = useConversationList(
 		setConversations,
 		false,
 		token,
 		user.id
 	);
 
-	console.log(conversations);
-
-	return <ConversationList user={user} conversations={conversations} />;
+	return isPending ? (
+		<LinearProgress />
+	) : (
+		<ConversationList user={user} conversations={conversations} />
+	);
 };
 
 export const Ride = props => {
@@ -54,18 +56,19 @@ export const Ride = props => {
 	const [driver, setDriver] = useState(null);
 	const [walks, setWalks] = useState([]);
 
-	const { isPending: ridePending, error: rideError, run: rideRun } = useRide(
+	const { isPending: ridePending, run: rideRun } = useRide(
 		setRide,
 		true,
 		token,
 		id
 	);
 
-	const {
-		isPending: driverPending,
-		error: driverError,
-		run: driverRun
-	} = useUser(setDriver, true, token, ride && ride.driver);
+	const { isPending: driverPending, run: driverRun } = useUser(
+		setDriver,
+		true,
+		token,
+		ride && ride.driver
+	);
 
 	useEffect(() => {
 		if (!state || !state.ride) {
@@ -73,7 +76,7 @@ export const Ride = props => {
 		} else {
 			setRide(state.ride);
 		}
-	}, [id]);
+	}, [id, state]);
 
 	useEffect(() => {
 		if (ride) driverRun();

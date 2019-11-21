@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import styled from "styled-components";
 import {
 	Grid,
 	Button as MButton,
@@ -20,7 +19,7 @@ const useStyles = makeStyles({
 		flex: "1 0",
 		width: "100%",
 		padding: "0",
-		["overflow-y"]: "scroll",
+		"overflow-y": "scroll",
 		"& > li": {
 			padding: 0
 		}

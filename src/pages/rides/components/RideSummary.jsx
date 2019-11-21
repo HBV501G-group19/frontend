@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import {
-	Grid,
-	Typography,
-	makeStyles,
-	ExpansionPanel,
-	Collapse
-} from "@material-ui/core";
+import { Grid, Typography, makeStyles, Collapse } from "@material-ui/core";
 import day from "dayjs";
 import { useInterval } from "web-api-hooks";
 

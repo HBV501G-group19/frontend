@@ -42,7 +42,7 @@ const App = () => {
 
 	const coords = useLocationCoords();
 
-	const [mapOptions, setMapOptions] = useState({
+	const [mapOptions] = useState({
 		zoom: 10,
 		center: coords
 	});
@@ -52,6 +52,7 @@ const App = () => {
 		return () =>
 			window.addEventListener("resize", () => setHeight(window.innerHeight));
 	}, [setHeight]);
+
 	return (
 		<>
 			<Leaflet id="map" options={mapOptions}>

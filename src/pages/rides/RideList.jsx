@@ -10,7 +10,7 @@ export const RideList = props => {
 	const [userData, setUserData] = useState();
 	const { user, token } = useContext(AuthenticationContext);
 
-	const { isPending, error } = useUser(setUserData, false, token, user.id);
+	const { isPending } = useUser(setUserData, false, token, user.id);
 
 	return (
 		<Column>

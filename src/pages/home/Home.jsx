@@ -3,7 +3,6 @@ import { Grid, LinearProgress, Typography } from "@material-ui/core";
 import { AuthenticationContext } from "../../context/Authentication";
 import { StyledLink as Link, Column, Heading } from "../../components/styles";
 import { useUser } from "../../hooks/useData";
-import { RideInfo } from "../rides/components/RideInfo";
 import { RideSummary } from "../rides/components/RideSummary";
 
 export const Home = props => {
