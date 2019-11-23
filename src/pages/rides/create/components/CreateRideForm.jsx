@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import day from "dayjs";
-import styled from "styled-components";
 
 import { GeocodeInput } from "../../../../components/map_components/GeocodeInput";
 import { Button } from "../../../../components/styles";
@@ -20,21 +19,20 @@ export const CreateRideForm = ({ submitEndpoints, submitRide }) => {
 
 	useEffect(() => {
 		if (origin.geometry && destination.geometry) {
-			const endpoints = [
-				{
-					origin: origin.geometry,
-					destination: destination.geometry,
+			const endpoints = {
+				origin: origin.geometry,
+				destination: destination.geometry,
+				properties: {
 					profile: "driving-car"
 				}
-			];
-
-			submitEndpoints({ endpoints });
+			};
+			submitEndpoints([endpoints]);
 		}
-	}, [origin, destination]);
+	}, [origin, destination, submitEndpoints]);
 
 	const submit = e => {
 		e.preventDefault();
-
+		console.log("origin: ", origin, destination);
 		if (origin.geometry && destination.geometry) {
 			submitRide({
 				seats,

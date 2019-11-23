@@ -11,13 +11,13 @@ const useStyles = makeStyles({
 	}
 });
 
-const ConversationBox = ({ user, recipient, sender, id, pre }) => {
+const ConversationBox = ({ user, recipient, sender, id, pre, ride }) => {
 	const history = useHistory();
 	const classes = useStyles();
 	return (
 		<ListItem
 			onClick={e => {
-				history.push(`/messages/${id}`);
+				history.push(`/messages/${id}`, ride);
 			}}
 			className={classes.conversation}
 		>

@@ -4,33 +4,38 @@ import { AuthenticationContext } from "../../context/Authentication";
 import { StyledLink as Link, Column, Heading } from "../../components/styles";
 import { useUser } from "../../hooks/useData";
 import { RideSummary } from "../rides/components/RideSummary";
+import { dispatch } from "rxjs/internal/observable/pairs";
+import { ACTIONS } from "../../map/constants";
+import { MapDispatch } from "../../map/Map";
+import { addRideToMap } from "../../map/mapUtils";
+import { filterDepartedRides } from "../../utils/utils";
 
 export const Home = props => {
 	const [data, setData] = useState();
-	const [rides, setRides] = useState([]);
-	const [drives, setDrives] = useState([]);
+	const [nextRide, setRide] = useState();
+	const [nextDrive, setDrive] = useState();
 
+	const dispatch = useContext(MapDispatch);
 	const { user, token } = useContext(AuthenticationContext);
 	const { isPending } = useUser(setData, false, token, user.id);
-
 	useEffect(() => {
 		if (data) {
-			// const rides = data.rides
-			// 	.filter(ride => ride.departureTime > new Date().toISOString())
-			// 	.sort((a, b) => a.departureTime < b.departureTime);
-			const rides = data.rides;
-
-			const drives = data.drives
-				.filter(ride => {
-					console.log(ride.departureTime, new Date().toISOString());
-					return ride.departureTime > new Date().toISOString();
-				})
-				.sort((a, b) => a.departureTime < b.departureTime);
-
-			setRides(rides);
-			setDrives(drives);
+			const ride = filterDepartedRides(data.rides);
+			const drive = filterDepartedRides(data.drives);
+			setRide(ride[0]);
+			setDrive(drive[0]);
 		}
 	}, [data]);
+
+	useEffect(() => {
+		if (nextRide || nextDrive) {
+			addRideToMap(nextDrive || nextRide, dispatch);
+		} else {
+			dispatch({
+				type: ACTIONS.CLEAR
+			});
+		}
+	}, [nextRide, nextDrive, dispatch]);
 
 	return (
 		<Column>
@@ -38,20 +43,20 @@ export const Home = props => {
 			<p>{`Welcome ${user.username}`}</p>
 			{isPending && <LinearProgress />}
 			<Grid container>
-				{drives.length ? (
+				{nextDrive ? (
 					<>
 						<Typography variance="subtitle2" component="h3">
 							You're next drive:
 						</Typography>
-						<RideSummary ride={drives[0]} user={user} token={token} />
+						<RideSummary ride={nextDrive} user={user} token={token} />
 					</>
 				) : null}
-				{rides.length ? (
+				{nextRide ? (
 					<>
 						<Typography variance="subtitle2" component="h3">
 							You're next ride:
 						</Typography>
-						<RideSummary ride={rides[0]} user={user} token={token} />
+						<RideSummary ride={nextRide} user={user} token={token} />
 					</>
 				) : null}
 				<Grid container justify="center">

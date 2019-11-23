@@ -16,7 +16,7 @@ const useStyles = makeStyles({
 		}
 	},
 	list: {
-		flex: "1 0",
+		//flex: "1 0",
 		width: "100%",
 		padding: "0",
 		"overflow-y": "scroll",
@@ -26,7 +26,8 @@ const useStyles = makeStyles({
 	},
 	column: {
 		height: "100%",
-		flex: "1 0"
+		flex: "1 0",
+		flexWrap: "nowrap"
 	}
 });
 

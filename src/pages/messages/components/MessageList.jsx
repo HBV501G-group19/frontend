@@ -1,8 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { ListItem, Grid } from "@material-ui/core";
 import { List, Button } from "../../../components/styles";
+import { useAddPassenger } from "../../../hooks/useData";
+import { useAutoScroll } from "../../../hooks/useAutoScroll";
 
-const Message = ({ getUser, message }) => (
+const Message = ({ message }) => (
 	<ListItem>
 		<Grid direction="row" container>
 			<p>
@@ -12,71 +14,46 @@ const Message = ({ getUser, message }) => (
 	</ListItem>
 );
 
-const AddPassengerButton = ({
-	passenger,
-	ride,
-	addPassengerFn,
-	token,
-	approved
-}) => (
-	<>
-		{approved.error && approved.error.message}
-		<Button
-			onClick={() => {
-				addPassengerFn(
-					{
-						rideId: ride.id,
-						passengerId: passenger.id
-					},
-					token
-				);
-			}}
-			disabled={approved.pending}
-		>
-			{`Approve ${passenger.name}`}
-		</Button>
-	</>
-);
+const AddPassengerButton = ({ passenger, ride, token, approve }) => {
+	const { isPending, error, run } = useAddPassenger(approve, true, token, {
+		passengerId: passenger.id,
+		rideId: ride.id
+	});
 
-export const MessageList = ({
-	messages,
-	sender,
-	recipient,
-	ride,
-	addPassenger
-}) => {
-	const scrollRef = useRef(null);
-	useEffect(() => {
-		if (scrollRef.current) {
-			scrollRef.current.scrollIntoView({
-				behavior: "smooth",
-				block: "start",
-				inline: "start"
-			});
-		}
-	}, [messages]);
+	return (
+		<>
+			{error && error.message}
+			<Button
+				onClick={() => {
+					run();
+				}}
+				disabled={isPending}
+			>
+				{`Approve ${passenger.name}`}
+			</Button>
+		</>
+	);
+};
 
-	const displayAddButton =
-		addPassenger &&
-		ride &&
-		sender.id === ride.driver &&
-		!ride.passengers.includes(recipient.id);
+export const MessageList = ({ messages, sender, recipient, ride, token }) => {
+	const [displayAddButton, setDisplayAddButton] = useState(
+		r => !r.passengers.includes(recipient.id),
+		ride
+	);
+	const scrollRef = useAutoScroll(null, [messages]);
 
 	return (
 		<List>
 			{messages.map(message => (
 				<Message key={message.id} message={message} />
 			))}
-			{displayAddButton && (
+			{displayAddButton && token && (
 				<ListItem>
 					<AddPassengerButton
 						passenger={recipient}
 						ride={ride}
-						addPassengerFn={addPassenger.run}
-						approved={{
-							pending: addPassenger.pending,
-							error: addPassenger.error
-						}}
+						token={token}
+						approve={setDisplayAddButton}
 					/>
 				</ListItem>
 			)}

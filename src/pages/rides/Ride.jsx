@@ -4,24 +4,52 @@ import { LinearProgress } from "@material-ui/core";
 
 import { AuthenticationContext } from "../../context/Authentication";
 import { Column } from "../../components/styles";
-import { RideInfo } from "./components/RideInfo";
 import { RideSummary } from "./components/RideSummary";
 import { MessageForm } from "./components/MessageForm";
 import { MessageList } from "../messages/components/MessageList";
 import { ConversationList } from "../messages/components/ConversationList";
 
-import { useRide, useUser, useConversationList } from "../../hooks/useData";
+import {
+	useRide,
+	useUser,
+	useConversationList,
+	useConversationPost
+} from "../../hooks/useData";
+import { MapDispatch } from "../../map/Map";
+import { addRideToMap } from "../../map/mapUtils";
+import { useInterval } from "web-api-hooks";
 
-const PassengerView = ({ ride, driver, walks, user, token }) => (
-	<>
+const PassengerView = ({ ride, driver, user, token }) => {
+	const [conversation, setConversation] = useState([]);
+
+	const { isPending, run } = useConversationPost(
+		setConversation,
+		false,
+		token,
+		{
+			rideId: ride.id,
+			senderId: user.id,
+			recipientId: driver.id
+		}
+	);
+
+	useInterval(() => {
+		if (!isPending) run();
+	}, 1000);
+
+	return (
 		<>
-			<RideInfo ride={ride} driver={driver} walks={walks} />
-			<MessageList sender={{ ...user, token }} recipient={driver} ride={ride} />
+			{isPending && !conversation.length && <LinearProgress />}
+			<MessageList
+				messages={conversation}
+				sender={user}
+				recipient={driver}
+				ride={ride}
+			/>
 			<MessageForm sender={user} recipient={driver} ride={ride} />
 		</>
-	</>
-);
-
+	);
+};
 const DriverView = ({ user, ride, token }) => {
 	const [conversations, _setConversations] = useState([]);
 
@@ -54,7 +82,8 @@ export const Ride = props => {
 	const { user, token } = useContext(AuthenticationContext);
 	const [ride, setRide] = useState(null);
 	const [driver, setDriver] = useState(null);
-	const [walks, setWalks] = useState([]);
+
+	const mapDispatch = useContext(MapDispatch);
 
 	const { isPending: ridePending, run: rideRun } = useRide(
 		setRide,
@@ -79,24 +108,26 @@ export const Ride = props => {
 	}, [id, state]);
 
 	useEffect(() => {
-		if (ride) driverRun();
-	}, [ride]);
+		if (ride) {
+			addRideToMap(ride, mapDispatch);
+			driverRun();
+		}
+	}, [ride, mapDispatch]);
 
 	if (ridePending || driverPending) return <LinearProgress />;
 
 	return ride && driver ? (
 		<Column>
-			<RideSummary ride={ride} user={user} token={token} />
+			<RideSummary
+				ride={ride}
+				user={user}
+				driver={ride.driverId}
+				token={token}
+			/>
 			{user.id === driver.id ? (
 				<DriverView user={user} token={token} ride={ride} />
 			) : (
-				<PassengerView
-					user={user}
-					token={token}
-					driver={driver}
-					ride={ride}
-					walks={walks}
-				/>
+				<PassengerView user={user} token={token} driver={driver} ride={ride} />
 			)}
 		</Column>
 	) : null;

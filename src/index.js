@@ -1,18 +1,18 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import App from './App'
-import * as serviceWorker from './serviceWorker'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import {Authentication} from './context/Authentication'
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import * as serviceWorker from "./serviceWorker";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import { Authentication } from "./context/Authentication";
 
 ReactDOM.render(
-  <>
-    <CssBaseline />
-    <Authentication>
-      <App />
-    </Authentication>
-  </>,
-  document.getElementById('root')
+	<>
+		<CssBaseline />
+		<Authentication>
+			<App />
+		</Authentication>
+	</>,
+	document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change
