@@ -6,11 +6,13 @@ import { LinearProgress, Divider, Typography } from "@material-ui/core";
 import { RideSummary } from "./components/RideSummary";
 import day from "dayjs";
 
+import { filterDepartedRides } from "../../utils/utils";
+
 export const RideList = props => {
 	const [userData, setUserData] = useState();
 	const { user, token } = useContext(AuthenticationContext);
 
-	const { isPending, error } = useUser(setUserData, false, token, user.id);
+	const { isPending } = useUser(setUserData, false, token, user.id);
 
 	return (
 		<Column>
@@ -24,39 +26,15 @@ export const RideList = props => {
 								You're not driving anywhere
 							</Typography>
 						)}
-						{userData.drives
-							.filter(ride => day().unix() < day(ride.departureTime).unix())
-							.sort((a, b) =>
-								a.departureTime < b.departureTime
-									? 1
-									: a.departureTime === b.departureTime
-									? 0
-									: -1
-							)
-							.map(ride => (
-								<RideSummary ride={ride} user={user} token={token} />
-							))}
+						{filterDepartedRides(userData.drives).map(ride => (
+							<RideSummary ride={ride} user={user} token={token} />
+						))}
 						<Divider />
-						{userData.drives
-							.filter(ride => day().unix() > day(ride.departureTime).unix())
-							.sort((a, b) =>
-								a.departureTime < b.departureTime
-									? 1
-									: a.departureTime === b.departureTime
-									? 0
-									: -1
-							)
-							.map(ride => {
-								console.log(ride.departureTime);
-								return (
-									<RideSummary
-										collapsing
-										ride={ride}
-										user={user}
-										token={token}
-									/>
-								);
-							})}
+						{filterDepartedRides(userData.drives, true).map(ride => {
+							return (
+								<RideSummary collapsing ride={ride} user={user} token={token} />
+							);
+						})}
 					</List>
 
 					<List>
@@ -65,38 +43,14 @@ export const RideList = props => {
 								You're not riding with anyone
 							</Typography>
 						)}
-						{userData.rides
-							.filter(ride => day().unix() < day(ride.departureTime).unix())
-							.sort((a, b) =>
-								a.departureTime < b.departureTime
-									? 1
-									: a.departureTime === b.departureTime
-									? 0
-									: -1
-							)
-							.map(ride => (
-								<RideSummary ride={ride} user={user} token={token} />
-							))}
-						{userData.rides
-							.filter(ride => day().unix() > day(ride.departureTime).unix())
-							.sort((a, b) =>
-								a.departureTime < b.departureTime
-									? 1
-									: a.departureTime === b.departureTime
-									? 0
-									: -1
-							)
-							.map(ride => {
-								console.log(ride.departureTime);
-								return (
-									<RideSummary
-										collapsing
-										ride={ride}
-										user={user}
-										token={token}
-									/>
-								);
-							})}
+						{filterDepartedRides(userData.rides).map(ride => (
+							<RideSummary ride={ride} user={user} token={token} />
+						))}
+						{filterDepartedRides(userData.rides, true).map(ride => {
+							return (
+								<RideSummary collapsing ride={ride} user={user} token={token} />
+							);
+						})}
 					</List>
 				</>
 			) : null}

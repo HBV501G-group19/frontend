@@ -1,23 +1,19 @@
-import React, {
-	useState,
-	useContext,
-	useCallback,
-	useRef,
-	useEffect
-} from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useAsync } from "react-async";
-import { useLocation, useRouteMatch } from "react-router-dom";
-import { Grid, ListItem, LinearProgress, makeStyles } from "@material-ui/core";
+import { useRouteMatch } from "react-router-dom";
+import { Grid, ListItem, LinearProgress } from "@material-ui/core";
 
 import { AuthenticationContext } from "../../context/Authentication";
 import { useInterval } from "../../hooks/useInterval";
 import { useRide, useConversation } from "../../hooks/useData";
 
-import { List, Column, Button, Heading } from "../../components/styles";
+import { Column, Heading } from "../../components/styles";
 import { MessageForm } from "./components/MessageForm";
 import { addPassenger as ap } from "../../api/rides";
 
 import { MessageList } from "./components/MessageList";
+import { MapDispatch } from "../../map/Map";
+import { addRideToMap } from "../../map/mapUtils";
 
 const Message = ({ getUser, message }) => (
 	<ListItem>
@@ -40,8 +36,9 @@ export const Conversation = () => {
 	const {
 		params: { id }
 	} = useRouteMatch("/messages/:id");
+
 	const { user, token } = useContext(AuthenticationContext);
-	const scrollRef = useRef(null);
+	const mapDispatch = useContext(MapDispatch);
 
 	const _setMessages = conversation => {
 		setMessages(conversation);
@@ -81,6 +78,10 @@ export const Conversation = () => {
 	}, [rideId, approvePending]);
 
 	useEffect(() => {
+		if (ride) addRideToMap(ride, mapDispatch);
+	}, [ride, mapDispatch]);
+
+	useEffect(() => {
 		if (messages.length > 0 && user) {
 			const mSender = {
 				id: messages[0].sender,
@@ -101,31 +102,18 @@ export const Conversation = () => {
 		}
 	}, [messages]);
 
-	useEffect(() => {
-		if (scrollRef.current) {
-			scrollRef.current.scrollIntoView({
-				behavior: "smooth",
-				block: "start",
-				inline: "start"
-			});
-		}
-	}, [messages]);
-
 	return (
 		<Column>
 			<Heading>Messages</Heading>
 			{ridePending && <LinearProgress />}
-			{sender && recipient && (
+			{sender && recipient && ride && (
 				<>
 					<MessageList
+						ride={ride}
 						messages={messages}
 						sender={sender}
 						recipient={recipient}
-						addPassenger={{
-							run: addPassenger,
-							error: approveError,
-							pending: approvePending
-						}}
+						token={token}
 					/>
 					<MessageForm sender={sender} recipient={recipient} rideId={rideId} />
 				</>

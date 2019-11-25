@@ -11,9 +11,11 @@
 		"react": "^16.11.0",
 		"react-async": "^9.0.0",
 		"react-dom": "^16.11.0",
+		"react-leaflet": "^2.6.0",
 		"react-router-dom": "^5.1.2",
 		"react-scripts": "3.2.0",
 		"styled-components": "^4.4.0",
+		"typescript": "^3.7.2",
 		"web-api-hooks": "^2.2.2"
 	},
 	"scripts": {

@@ -1,46 +1,34 @@
-import React from 'react'
-import { Grid,  } from '@material-ui/core'
-import { LineString } from '../../../components/map_components/LineString'
-import { Form, Input } from '../../../components/forms/input'
-import { Button } from '../../../components/styles'
-import { MessageForm } from './MessageForm'
+import React from "react";
+import { Typography } from "@material-ui/core";
+import { Heading } from "../../../components/styles";
+import { useRideTime } from "../../../hooks/useRideTime";
+import { makeRideTitle, makeDepartureText } from "../../../utils/utils";
 
-const calculateWalkingTime = walks => (
-  walks.reduce((acc, {properties: {summary}}) => (
-    summary.duration
-    ? acc + summary.duration
-    : acc
-  ), 0)
-)
+export const RideInfo = ({ ride, user, driver }) => {
+	const {
+		properties: { origin, destination }
+	} = ride;
 
-export const RideInfo = ({walks = [], ride, driver}) => (
-  <Grid
-    container
-  >
-    {walks.map((walk, index) => (
-      <LineString
-        key={index}
-        coordinates={walk.coordinates}
-        options={{
-          smoothFactor: 1,
-          weigth: 5,
-          color: (index % 2) ? '#ffff00' : '#00ffff'
-        }}
-      />
-    ))}
-    <LineString
-      coordinates={ride.route.coordinates}
-      options={{
-        smoothFactor: 1,
-        weigth: 5,
-        color: '#ff00ff'
-      }}
-    />
-    <Grid>
-      <h2 style={{textTransform: 'capitalize'}}>{driver.username}'s ride</h2>
-      <p>Drive duration: {(ride.duration / 60).toFixed()} minutes</p>
-      <p>Free seats: {ride.freeSeats}</p>
-      {walks.length > 0 && <p>Walk duration: {(calculateWalkingTime(walks) / 60).toFixed()} minutes</p> }
-    </Grid>
-  </Grid>
-)
+	const { minutesTo, hoursTo } = useRideTime(ride);
+	const title = makeRideTitle(origin, destination);
+
+	const drivingText = driver
+		? driver.id === user.id
+			? "You are driving"
+			: `${driver.username} is driving`
+		: "Getting driver data...";
+
+	const departureText = makeDepartureText(hoursTo, minutesTo);
+
+	return (
+		<>
+			<Heading>{title}</Heading>
+			<Typography variant="subtitle2">{drivingText}</Typography>
+			<Typography component="p">{departureText}</Typography>
+			<Typography component="p">
+				Drive duration: {(ride.duration / 60).toFixed()} minutes
+			</Typography>
+			<Typography component="p">Free seats: {ride.freeSeats}</Typography>
+		</>
+	);
+};

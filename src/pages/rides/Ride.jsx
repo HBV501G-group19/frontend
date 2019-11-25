@@ -1,71 +1,58 @@
-import React, { useContext, useState, useEffect, useCallback } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useLocation, useRouteMatch } from "react-router-dom";
 import { LinearProgress } from "@material-ui/core";
 
 import { AuthenticationContext } from "../../context/Authentication";
 import { Column } from "../../components/styles";
-import { RideInfo } from "./components/RideInfo";
-import { RideSummary } from "./components/RideSummary";
 import { MessageForm } from "./components/MessageForm";
 import { MessageList } from "../messages/components/MessageList";
 import { ConversationList } from "../messages/components/ConversationList";
 
-import { useRide, useUser, useConversationList } from "../../hooks/useData";
-
-const PassengerView = ({ ride, driver, walks, user, token }) => (
-	<>
-		<>
-			<RideInfo ride={ride} driver={driver} walks={walks} />
-			<MessageList sender={{ ...user, token }} recipient={driver} ride={ride} />
-			<MessageForm sender={user} recipient={driver} ride={ride} />
-		</>
-	</>
-);
-
-const DriverView = ({ user, ride, token }) => {
-	const [conversations, _setConversations] = useState([]);
-
-	const setConversations = convs => {
-		const newConvs = convs.filter(
-			conversation => conversation.rideId === ride.id
-		);
-		_setConversations(newConvs);
-	};
-
-	const { error, isPending } = useConversationList(
-		setConversations,
-		false,
-		token,
-		user.id
-	);
-
-	console.log(conversations);
-
-	return <ConversationList user={user} conversations={conversations} />;
-};
+import {
+	useRide,
+	useUser,
+	useConversationList,
+	useConversationPost
+} from "../../hooks/useData";
+import { MapDispatch } from "../../map/Map";
+import { addRideToMap } from "../../map/mapUtils";
+import { useInterval } from "web-api-hooks";
+import { useNamedEndpoints } from "../../hooks/useNamedEndpoints";
+import { RideInfo } from "./components/RideInfo";
+import { DriverView } from "./components/DriverView";
+import { PassengerView } from "./components/PassengerView";
 
 export const Ride = props => {
 	const { state } = useLocation();
 	const {
 		params: { id }
 	} = useRouteMatch("/rides/:id");
-	const { user, token } = useContext(AuthenticationContext);
-	const [ride, setRide] = useState(null);
-	const [driver, setDriver] = useState(null);
-	const [walks, setWalks] = useState([]);
 
-	const { isPending: ridePending, error: rideError, run: rideRun } = useRide(
+	const { user, token } = useContext(AuthenticationContext);
+	const [ride, setRide] = useState(() => state && state.ride);
+
+	const [driver, setDriver] = useState(null);
+
+	const mapDispatch = useContext(MapDispatch);
+	const { isPending: ridePending, run: rideRun } = useRide(
 		setRide,
 		true,
 		token,
 		id
 	);
 
-	const {
-		isPending: driverPending,
-		error: driverError,
-		run: driverRun
-	} = useUser(setDriver, true, token, ride && ride.driver);
+	const { isPending: driverPending, run: driverRun } = useUser(
+		setDriver,
+		true,
+		token,
+		ride && ride.driver
+	);
+
+	const { origin, destination } = useNamedEndpoints(
+		ride && ride.origin,
+		ride && ride.destination,
+		token
+	);
 
 	useEffect(() => {
 		if (!state || !state.ride) {
@@ -73,27 +60,24 @@ export const Ride = props => {
 		} else {
 			setRide(state.ride);
 		}
-	}, [id]);
+	}, [id, state, rideRun]);
 
 	useEffect(() => {
-		if (ride) driverRun();
-	}, [ride]);
+		if (ride && origin && destination) {
+			addRideToMap(ride, mapDispatch);
+			driverRun();
+		}
+	}, [ride, origin, destination, mapDispatch, driverRun]);
 
 	if (ridePending || driverPending) return <LinearProgress />;
 
 	return ride && driver ? (
 		<Column>
-			<RideSummary ride={ride} user={user} token={token} />
+			<RideInfo ride={ride} user={user} driver={driver} />
 			{user.id === driver.id ? (
 				<DriverView user={user} token={token} ride={ride} />
 			) : (
-				<PassengerView
-					user={user}
-					token={token}
-					driver={driver}
-					ride={ride}
-					walks={walks}
-				/>
+				<PassengerView user={user} token={token} driver={driver} ride={ride} />
 			)}
 		</Column>
 	) : null;

@@ -9,7 +9,8 @@ import { LinearProgress } from "@material-ui/core";
 export const Messages = props => {
 	const [conversations, setConversations] = useState([]);
 	const { user, token } = useContext(AuthenticationContext);
-	const { error, isPending, run } = useConversationList(
+
+	const { hasRun, error, isPending, run } = useConversationList(
 		setConversations,
 		false,
 		token,
@@ -23,7 +24,7 @@ export const Messages = props => {
 	return (
 		<Column>
 			<Heading>Messages</Heading>
-			{isPending && conversations.length === 0 && <LinearProgress />}
+			{isPending && conversations.length === 0 && !hasRun && <LinearProgress />}
 			{error && <p>{error}</p>}
 			<ConversationList user={user} conversations={conversations} />
 		</Column>

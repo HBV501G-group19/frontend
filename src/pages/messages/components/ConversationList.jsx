@@ -1,6 +1,6 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { ListItem, Grid, makeStyles } from "@material-ui/core";
+import { ListItem, Grid, Typography, makeStyles } from "@material-ui/core";
 
 import { List } from "../../../components/styles";
 
@@ -11,13 +11,13 @@ const useStyles = makeStyles({
 	}
 });
 
-const ConversationBox = ({ user, recipient, sender, id, pre }) => {
+const ConversationBox = ({ user, recipient, sender, id, pre, ride }) => {
 	const history = useHistory();
 	const classes = useStyles();
 	return (
 		<ListItem
 			onClick={e => {
-				history.push(`/messages/${id}`);
+				history.push(`/messages/${id}`, ride);
 			}}
 			className={classes.conversation}
 		>
@@ -34,6 +34,7 @@ const ConversationBox = ({ user, recipient, sender, id, pre }) => {
 
 export const ConversationList = ({ conversations, user }) => (
 	<List>
+		{!conversations.length && <Typography>You have no messages</Typography>}
 		{conversations.map(({ conversationId, messages }) => (
 			<ConversationBox
 				key={conversationId}

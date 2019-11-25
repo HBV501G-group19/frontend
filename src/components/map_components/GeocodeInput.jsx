@@ -1,160 +1,146 @@
-import React, {useState, useContext, useEffect, useRef} from 'react'
-import L from 'leaflet'
-import styled from 'styled-components'
-import Async, { useAsync } from 'react-async'
+import React, {
+	useState,
+	useContext,
+	useRef,
+	useCallback,
+	useEffect
+} from "react";
 
-import {AuthenticationContext} from '../../context/Authentication'
-import { useLocationCoords } from '../../hooks/useLocationCoords'
+import { AuthenticationContext } from "../../context/Authentication";
+import { useLocationCoords } from "../../hooks/useLocationCoords";
 
-import {MapContext} from '../../context/Map'
-import { Input } from '../forms/input'
-import { List } from '../styles'
-import { ListItem } from '@material-ui/core'
+import { MapDispatch } from "../../map/Map";
+import { ACTIONS } from "../../map/constants";
+import { Input } from "../forms/input";
+import { List, CollapsableList } from "../styles";
+import { ListItem, Typography, Box } from "@material-ui/core";
+import { useGeocode } from "../../hooks/useData";
+import { useBoundMarker } from "../../map/hooks";
+import { Icon } from "../../map/mapUtils";
 
-import { Marker } from './Marker'
-import { BASEURL } from '../../api/utils'
-import { getGeocode } from '../../api/ors'
-import { useGeocode } from '../../hooks/useData'
+const ListMarker = ({ feature, onClick = () => {} }) => {
+	const [hover, setHover] = useState(false);
 
-const $Li = styled.li`
-	font-weight: ${({hover}) => hover ? 'bold' : 'normal'};
-`
-const ListMarker = ({
-  feature,
-	options, 
-	onClick = () => {},
-  markerColor
-}) => {
-	const [hover, setHover] = useState(false)
-	const onClickLi = e => {
-		e.preventDefault()
-		onClick()
-	}
+	const self = useRef(null);
 
-	const onClickMarker = e => {
-		onClick()
-	}
+	const dispatchMarker = useBoundMarker({
+		feature,
+		clean: false,
+		events: [
+			{
+				event: hover,
+				trigger: "openTooltip",
+				untrigger: "closeTooltip"
+			}
+		],
+		onClick,
+		tooltip: {
+			content: feature.properties.name || feature.properties.label
+		},
+		hoverTrigger: setHover,
+		controlRef: self,
+		iconComponent: Icon
+	});
 
-  const {
-	  properties: {id, label},
-		geometry
-	} = feature
+	useEffect(() => {
+		if (feature) {
+			dispatchMarker(ACTIONS.INSERT);
+		}
+	}, [feature, dispatchMarker]);
+	return (
+		<ListItem
+			ref={self}
+			onClick={onClick}
+			onMouseOver={e => {
+				setHover(true);
+			}}
+			onMouseOut={e => {
+				setHover(false);
+			}}
+			hover={hover ? 1 : 0}
+		>
+			<Typography component="span">
+				<Box fontWeight={hover ? "bold" : "normal"}>
+					{feature.properties.label}
+				</Box>
+			</Typography>
+		</ListItem>
+	);
+};
 
-	const { coordinates } = geometry
+export const GeocodeInput = ({ setLocation, formLabel, options }) => {
+	const { token } = useContext(AuthenticationContext);
+	const dispatch = useContext(MapDispatch);
+	const ref = useRef(null);
+
+	const [features, setFeatures] = useState([]);
+	const [value, setValue] = useState("");
+	const [submitted, setSubmitted] = useState(false);
+
+	const _setFeatures = featureCollection => {
+		setFeatures(featureCollection.features);
+	};
+
+	const coords = useLocationCoords();
+	const { isPending, error, run } = useGeocode(_setFeatures, true, token, {
+		geocode: value,
+		focus: coords
+	});
+
+	const removeOtherMarkers = features => id => {
+		const feature = features.find(f => f.properties.id === id);
+		const removalIds = features
+			.filter(f => f.properties.id !== id)
+			.map(f => f.properties.id);
+		dispatch({
+			type: ACTIONS.REMOVEMULTI,
+			payload: removalIds
+		});
+		setFeatures([feature]);
+	};
+
+	const removeOthers = removeOtherMarkers(features);
+
+	const submit = e => {
+		e.preventDefault();
+		run();
+		setSubmitted(true);
+	};
+
+	const focus = () => {
+		if (ref.current) ref.current.focus();
+	};
 
 	return (
 		<>
-			<Marker
-				hover={hover}
-				onClick={onClickMarker}
-				onHover={setHover}
-				coordinates={coordinates.slice().reverse()}
-				tooltip={label}
-				options={options}
-        color={markerColor}
+			<Input
+				focusRef={ref}
+				onChange={setValue}
+				value={value}
+				onKeyEnter={submit}
+				label={formLabel}
+				disabled={isPending}
 			/>
-			<ListItem
-				onClick={onClickLi}
-				onMouseOver={e => {setHover(true)}}
-				onMouseOut={e => {setHover(false)}}
-				hover={hover}
-			>
-				<p
-          style={{
-            fontWeight: hover ? 'bold' : 'normal'
-          }}
-        >
-          {label}
-        </p>
-			</ListItem>
+			{error && <p>error.message</p>}
+			<CollapsableList in={submitted}>
+				{/* <List> */}
+				{features.map(feature => (
+					<ListMarker
+						key={feature.properties.id}
+						feature={feature}
+						onClick={e => {
+							focus();
+							setValue(feature.properties.label);
+							setLocation({
+								label: feature.properties.label,
+								geometry: feature.geometry
+							});
+							removeOthers(feature.properties.id);
+						}}
+					/>
+				))}
+				{/* </List> */}
+			</CollapsableList>
 		</>
-	)
-}
-
-const getGeocodes = async ([geocode, focus, token]) => {
-  const res = await fetch('http://localhost:8080/ors/geocode',{
-    method: 'POST',
-    headers: {
-      'content-type':'application/json',
-      'accepts':'application/json, application/geo+json',
-      'authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify({geocode, focus})
-  })
-
-  if (!res.ok) throw new Error(res.statusText)
-  return res.json()
-}
-
-export const GeocodeInput = ({setLocation, formLabel, options}) => {
-	const {token} = useContext(AuthenticationContext)
-	const ref = useRef(null)
-
-	const [features, setFeatures] = useState([])
-	const [value, setValue] = useState('')
-
-  const _setFeatures = (featureCollection) => {
-    setFeatures(featureCollection.features)
-  }
-
-	const coords = useLocationCoords()
-  const {
-    isPending,
-    error,
-    run
-  } = useGeocode(
-        _setFeatures,
-        true,
-        token, 
-        {geocode: value, focus: coords}
-  )
-
-	const removeOtherMarkers = features => id => {
-		const feature = features.find(f => f.properties.id === id)
-		setFeatures([feature])
-	}
-
-  const removeOthers = removeOtherMarkers(features)
-	
-  const submit = e => {
-		e.preventDefault()
-    run()
-	}
-
-	const focus = () => {
-		if (ref.current) ref.current.focus()
-	}
-  console.log(features)
-  return (
-    <>
-      <Input 
-        focusRef={ref}
-        onChange={setValue}
-        value={value}
-        onKeyEnter={submit}
-        label={formLabel}
-        disabled={isPending}
-      />
-      { error && <p>error.message</p> }
-          <List>
-            {features.map(({geometry, properties}) => (
-              <ListMarker
-                key={properties.id}
-                feature={{geometry, properties}}
-                options={options}
-                markerColor={options.markerColor}
-                onClick={e => {
-                  focus()
-                  setValue(properties.label)
-                  setLocation({
-                    label: properties.label,
-                    geometry
-                  })
-                  removeOthers(properties.id)
-                }}
-              />
-            ))}
-          </List>
-    </>
-  )
-}
+	);
+};
