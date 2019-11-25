@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { ListItem, Grid } from "@material-ui/core";
 import { List, Button } from "../../../components/styles";
 import { useAddPassenger } from "../../../hooks/useData";
@@ -15,10 +15,15 @@ const Message = ({ message }) => (
 );
 
 const AddPassengerButton = ({ passenger, ride, token, approve }) => {
-	const { isPending, error, run } = useAddPassenger(approve, true, token, {
+	const [p, setP] = useState();
+	const { isPending, error, run } = useAddPassenger(setP, true, token, {
 		passengerId: passenger.id,
 		rideId: ride.id
 	});
+
+	useEffect(() => {
+		if (p) approve(true);
+	}, [p, approve]);
 
 	return (
 		<>
@@ -36,10 +41,10 @@ const AddPassengerButton = ({ passenger, ride, token, approve }) => {
 };
 
 export const MessageList = ({ messages, sender, recipient, ride, token }) => {
-	const [displayAddButton, setDisplayAddButton] = useState(
-		r => !r.passengers.includes(recipient.id),
-		ride
+	const [approved, setApproved] = useState(() =>
+		ride.passengers.includes(recipient.id)
 	);
+
 	const scrollRef = useAutoScroll(null, [messages]);
 
 	return (
@@ -47,13 +52,13 @@ export const MessageList = ({ messages, sender, recipient, ride, token }) => {
 			{messages.map(message => (
 				<Message key={message.id} message={message} />
 			))}
-			{displayAddButton && token && (
+			{!approved && token && (
 				<ListItem>
 					<AddPassengerButton
 						passenger={recipient}
 						ride={ride}
 						token={token}
-						approve={setDisplayAddButton}
+						approve={setApproved}
 					/>
 				</ListItem>
 			)}

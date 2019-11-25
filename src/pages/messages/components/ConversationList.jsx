@@ -1,6 +1,6 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { ListItem, Grid, makeStyles } from "@material-ui/core";
+import { ListItem, Grid, Typography, makeStyles } from "@material-ui/core";
 
 import { List } from "../../../components/styles";
 
@@ -34,6 +34,7 @@ const ConversationBox = ({ user, recipient, sender, id, pre, ride }) => {
 
 export const ConversationList = ({ conversations, user }) => (
 	<List>
+		{!conversations.length && <Typography>You have no messages</Typography>}
 		{conversations.map(({ conversationId, messages }) => (
 			<ConversationBox
 				key={conversationId}

@@ -78,7 +78,7 @@ export const TimeInput = ({
 					.year(currTime.year())
 					.month(currTime.month())
 					.date(currTime.date());
-
+				console.log(newDate);
 				onChange(newDate);
 			}}
 			disabled={disabled}

@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { Map, TileLayer, GeoJSON, Tooltip, Popup } from "react-leaflet";
+import React, { useContext, useRef } from "react";
+import { Map, TileLayer, GeoJSON, Tooltip } from "react-leaflet";
 import { MapState } from "./Map";
 
 const tilesUrl =
@@ -22,26 +22,31 @@ export const Leaflet = ({
 	);
 };
 
-export const LeafletOverlays = () => {
-	const { layers } = useContext(MapState);
-	console.log("dispatching: ", layers);
-	return layers.map(({ id, data, tooltip, popup, ...rest }) => (
-		<GeoJSON key={id} data={data} {...rest}>
-			{console.log(rest)}
-			{popup && (
-				<Popup
-					onOpen={popup.open}
-					onClose={popup.close}
-					position={popup.position}
-				>
-					{popup.content}
-				</Popup>
-			)}
+const GeoJSONItem = ({ data, tooltip, popup, icon, ...rest }) => {
+	const ref = useRef(null);
+	return (
+		<GeoJSON ref={ref} data={data} {...rest}>
+			{popup && <popup.component parentRef={ref} />}
+			{icon && <icon.component parentRef={ref} />}
 			{tooltip && tooltip.content && (
 				<Tooltip onOpen={tooltip.open} onClose={tooltip.close}>
 					{tooltip.content}
 				</Tooltip>
 			)}
 		</GeoJSON>
+	);
+};
+
+export const LeafletOverlays = () => {
+	const { layers } = useContext(MapState);
+	console.log(layers);
+	return layers.map(({ id, data, tooltip, popup, ...rest }) => (
+		<GeoJSONItem
+			key={id}
+			data={data}
+			tooltip={tooltip}
+			popup={popup}
+			{...rest}
+		/>
 	));
 };

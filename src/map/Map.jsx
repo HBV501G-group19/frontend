@@ -85,27 +85,12 @@ const mapReducer = (state, { payload, type }) => {
 		case ACTIONS.REMOVE:
 			return {
 				...state,
-				layers: state.layers.filter(layer => layer.id !== payload.id),
-				toRemove: [
-					...state.toRemove,
-					state.layers.find(layer => layer.id === payload.id)
-				]
+				layers: state.layers.filter(layer => layer.id !== payload.id)
 			};
 		case ACTIONS.REMOVEMULTI:
-			const toRemove = [...state.toRemove];
-			const newLayers = [];
-
-			state.layers.forEach(layer => {
-				if (payload.includes(layer.id)) {
-					toRemove.push(layer);
-				} else {
-					newLayers.push(layer);
-				}
-			});
 			return {
 				...state,
-				toRemove,
-				layers: newLayers
+				layers: state.layers.filter(layer => !payload.includes(layer.id))
 			};
 		case ACTIONS.CLEAR: {
 			return { ...state, layers: [] };

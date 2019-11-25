@@ -13,7 +13,7 @@ export const RideList = props => {
 	const { user, token } = useContext(AuthenticationContext);
 
 	const { isPending } = useUser(setUserData, false, token, user.id);
-	console.log(userData);
+
 	return (
 		<Column>
 			<Heading>{user.username}'s rides</Heading>

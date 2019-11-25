@@ -16,7 +16,7 @@ export const CreateRideForm = ({ submitEndpoints, submitRide }) => {
 	});
 	const [time, setTime] = useState(day());
 	const [seats, setSeats] = useState("");
-
+	console.log(time);
 	useEffect(() => {
 		if (origin.geometry && destination.geometry) {
 			const endpoints = {
@@ -32,7 +32,6 @@ export const CreateRideForm = ({ submitEndpoints, submitRide }) => {
 
 	const submit = e => {
 		e.preventDefault();
-		console.log("origin: ", origin, destination);
 		if (origin.geometry && destination.geometry) {
 			submitRide({
 				seats,

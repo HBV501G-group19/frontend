@@ -54,7 +54,7 @@ const RootContainer = ({ providers }) => {
 	const coords = useLocationCoords();
 	const { MapStateProvider, DispatchProvider } = providers;
 	const [mapOptions] = useState({
-		zoom: 10,
+		zoom: 13,
 		center: coords
 	});
 

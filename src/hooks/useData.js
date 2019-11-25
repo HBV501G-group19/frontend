@@ -20,8 +20,6 @@ const makeDataHook = request => (setState, defer = false, token, payload) => {
 	const { data, isPending, error, run } = useAsync({
 		deferFn: request
 	});
-	console.log("request: payload", payload);
-
 	// run identity is stable
 	// eslint-disable-next-line
 	const runWrap = useCallback(

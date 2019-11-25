@@ -4,7 +4,8 @@ import {
 	Grid,
 	Button as MButton,
 	makeStyles,
-	Typography
+	Typography,
+	Collapse
 } from "@material-ui/core";
 
 const useStyles = makeStyles({
@@ -28,6 +29,14 @@ const useStyles = makeStyles({
 		height: "100%",
 		flex: "1 0",
 		flexWrap: "nowrap"
+	},
+	collapsableList: {
+		overflowY: "scroll",
+		// flex: "1 0 0",
+		height: ({ in: show }) => (!show ? 0 : null),
+		"& ul": {
+			overflowY: "auto"
+		}
 	}
 });
 
@@ -84,3 +93,12 @@ export const Heading = ({ children, ...rest }) => (
 		{children}
 	</Typography>
 );
+
+export const CollapsableList = ({ children, in: show, ...rest }) => {
+	const classes = useStyles();
+	return (
+		<Collapse className={classes.collapsableList} in={show}>
+			<List>{children}</List>
+		</Collapse>
+	);
+};
