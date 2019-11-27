@@ -32,7 +32,7 @@ export const MessageForm = ({ sender, recipient, rideId }) => {
 	return (
 		<Form>
 			<Input
-				label={`Message ${recipient.username}`}
+				label={`Message ${recipient.username || recipient.name}`}
 				multiline
 				value={message}
 				onChange={setMessage}
