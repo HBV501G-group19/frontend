@@ -6,11 +6,10 @@ import { AuthenticationContext } from "../../../context/Authentication";
 import { CreateRideForm } from "./components/CreateRideForm";
 import { Column } from "../../../components/styles";
 
-import { FeatureCollection as LineStrings } from "../../../components/map_components/geojson";
 import { useDirections, useCreateRide } from "../../../hooks/useData";
 import { MapDispatch } from "../../../map/Map";
 import { ACTIONS } from "../../../map/constants";
-import { colors } from "@material-ui/core";
+import { colors, LinearProgress } from "@material-ui/core";
 import { prepareLineString } from "../../../map/mapUtils";
 import { makeNewRouteTooltip } from "../../../map/Tooltips";
 
@@ -26,7 +25,6 @@ export const CreateRide = props => {
 	const history = useHistory();
 	const mapDispatch = useContext(MapDispatch);
 
-	// need to fix the ORS directions api so that it accepts only two points
 	const {
 		isPending: createPending,
 		error: createError,
@@ -36,12 +34,13 @@ export const CreateRide = props => {
 	const {
 		isPending: routePending,
 		error: routeError,
-		data: routeData,
 		run: runRoute
 	} = useDirections(setRoute, true, token, endpoints);
 
 	useEffect(() => {
-		if (endpoints) runRoute();
+		if (endpoints) {
+			runRoute();
+		}
 	}, [endpoints, runRoute]);
 
 	const submitRide = useCallback(
@@ -53,10 +52,11 @@ export const CreateRide = props => {
 			// creating a ride, we only have 1 route
 			const { geometry, properties } = linestring;
 			const {
-				summary: { duration }
+				summary: { duration, distance }
 			} = properties;
 			runCreate({
 				duration,
+				distance,
 				driverId: id,
 				seats,
 				origin,
@@ -107,10 +107,9 @@ export const CreateRide = props => {
 	return (
 		<Column>
 			<h2>Submit your Ride</h2>
-			{createPending ? <p>Creating ride...</p> : null}
+			{createPending || routePending ? <LinearProgress /> : null}
 			{createError ? <p>Something went wrong :(</p> : null}
 			{routeError ? <p>Error getting route directions</p> : null}
-			{routeData ? <LineStrings featureCollection={routeData} /> : null}
 			<CreateRideForm submitEndpoints={setEndpoints} submitRide={submitRide} />
 		</Column>
 	);
