@@ -29,10 +29,11 @@ export const MessageForm = ({ sender, recipient, rideId }) => {
 		setMessage("");
 	};
 
+	console.log(recipient);
 	return (
 		<Form>
 			<Input
-				label={`Message ${recipient.username}`}
+				label={`Message ${recipient.username || recipient.name}`}
 				multiline
 				value={message}
 				onChange={setMessage}
