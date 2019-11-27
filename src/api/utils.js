@@ -10,7 +10,6 @@ export const payloadRequest = method => path => async ([
 	payload,
 	token = null
 ]) => {
-	console.log("request: ", path, payload);
 	const url = new URL(path, BASEURL);
 	const headers = {
 		accept: "application/json",
@@ -19,7 +18,6 @@ export const payloadRequest = method => path => async ([
 
 	if (token) headers["authorization"] = `Bearer ${token}`;
 
-	console.log(payload);
 	const res = await fetch(url, {
 		method,
 		headers,

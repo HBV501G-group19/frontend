@@ -3,6 +3,7 @@ import { Typography } from "@material-ui/core";
 import { Heading } from "../../../components/styles";
 import { useRideTime } from "../../../hooks/useRideTime";
 import { makeRideTitle, makeDepartureText } from "../../../utils/utils";
+import { useFuelCosts } from "../../../hooks/useData";
 
 export const RideInfo = ({ ride, user, driver }) => {
 	const {
@@ -19,6 +20,7 @@ export const RideInfo = ({ ride, user, driver }) => {
 		: "Getting driver data...";
 
 	const departureText = makeDepartureText(hoursTo, minutesTo);
+	const { cost: fuelCost } = useFuelCosts(ride.distance);
 
 	return (
 		<>
@@ -27,6 +29,9 @@ export const RideInfo = ({ ride, user, driver }) => {
 			<Typography component="p">{departureText}</Typography>
 			<Typography component="p">
 				Drive duration: {(ride.duration / 60).toFixed()} minutes
+			</Typography>
+			<Typography component="p">
+				Estimated cost: {`${fuelCost}`} kr.-
 			</Typography>
 			<Typography component="p">Free seats: {ride.freeSeats}</Typography>
 		</>

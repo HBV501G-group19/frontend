@@ -1,10 +1,9 @@
 import React, { useState, useContext, useEffect } from "react";
-import { useAsync } from "react-async";
 import { useRouteMatch } from "react-router-dom";
-import { Grid, ListItem, LinearProgress } from "@material-ui/core";
+import { LinearProgress } from "@material-ui/core";
 
 import { AuthenticationContext } from "../../context/Authentication";
-import { useInterval } from "../../hooks/useInterval";
+import { useInterval } from "web-api-hooks";
 import { useRide, useConversation } from "../../hooks/useData";
 
 import { Column, Heading } from "../../components/styles";
@@ -14,16 +13,6 @@ import { addPassenger as ap } from "../../api/rides";
 import { MessageList } from "./components/MessageList";
 import { MapDispatch } from "../../map/Map";
 import { addRideToMap } from "../../map/mapUtils";
-
-const Message = ({ getUser, message }) => (
-	<ListItem>
-		<Grid direction="row" container>
-			<p>
-				<strong>{message.senderName}:</strong> {message.body}
-			</p>
-		</Grid>
-	</ListItem>
-);
 
 export const Conversation = () => {
 	const [messages, setMessages] = useState([]);
@@ -45,24 +34,14 @@ export const Conversation = () => {
 		setRideId(conversation[0].ride);
 	};
 
-	const {
-		error: approveError,
-		isPending: approvePending,
-		run: runPassenger
-	} = useAsync({
-		deferFn: ap
-	});
+	const { isPending: convPending, run: convRun } = useConversation(
+		_setMessages,
+		false,
+		token,
+		id
+	);
 
-	const addPassenger = (rideId, passengerId) =>
-		runPassenger({ rideId, passengerId }, token);
-
-	const {
-		error: convError,
-		isPending: convPending,
-		run: convRun
-	} = useConversation(_setMessages, false, token, id);
-
-	const { error: rideError, isPending: ridePending, run: rideRun } = useRide(
+	const { isPending: ridePending, run: rideRun } = useRide(
 		setRide,
 		true,
 		token,
@@ -75,7 +54,7 @@ export const Conversation = () => {
 
 	useEffect(() => {
 		if (rideId != null) rideRun();
-	}, [rideId, approvePending]);
+	}, [rideId, rideRun]);
 
 	useEffect(() => {
 		if (ride) addRideToMap(ride, mapDispatch);
@@ -100,7 +79,7 @@ export const Conversation = () => {
 				setRecipient(mSender);
 			}
 		}
-	}, [messages]);
+	}, [messages, user]);
 
 	return (
 		<Column>

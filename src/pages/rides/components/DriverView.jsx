@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useConversationList } from "../../../hooks/useData";
 import { LinearProgress } from "@material-ui/core";
 import { ConversationList } from "../../messages/components/ConversationList";
+import { useInterval } from "web-api-hooks";
 
 export const DriverView = ({ user, ride, token }) => {
 	const [conversations, _setConversations] = useState([]);
@@ -13,14 +14,18 @@ export const DriverView = ({ user, ride, token }) => {
 		_setConversations(newConvs);
 	};
 
-	const { isPending } = useConversationList(
+	const { isPending, run, hasRun } = useConversationList(
 		setConversations,
 		false,
 		token,
 		user.id
 	);
 
-	return isPending ? (
+	useInterval(() => {
+		if (!isPending) run();
+	}, 1500);
+
+	return isPending && !hasRun ? (
 		<LinearProgress />
 	) : (
 		<ConversationList user={user} conversations={conversations} />

@@ -8,7 +8,7 @@ import { MessageForm } from "../../messages/components/MessageForm";
 export const PassengerView = ({ ride, driver, user, token }) => {
 	const [conversation, setConversation] = useState([]);
 
-	const { isPending, run } = useConversationPost(
+	const { isPending, run, hasRun } = useConversationPost(
 		setConversation,
 		false,
 		token,
@@ -25,14 +25,14 @@ export const PassengerView = ({ ride, driver, user, token }) => {
 
 	return (
 		<>
-			{isPending && !conversation.length && <LinearProgress />}
+			{isPending && !hasRun && <LinearProgress />}
 			<MessageList
 				messages={conversation}
 				sender={user}
 				recipient={driver}
 				ride={ride}
 			/>
-			<MessageForm sender={user} recipient={driver} rideIds={ride} />
+			<MessageForm sender={user} recipient={driver} rideId={ride.id} />
 		</>
 	);
 };

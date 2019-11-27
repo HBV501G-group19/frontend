@@ -24,10 +24,10 @@ export const Leaflet = ({
 
 const GeoJSONItem = ({ data, tooltip, popup, icon, ...rest }) => {
 	const ref = useRef(null);
+
 	return (
 		<GeoJSON ref={ref} data={data} {...rest}>
 			{popup && <popup.component parentRef={ref} />}
-			{icon && <icon.component parentRef={ref} />}
 			{tooltip && tooltip.content && (
 				<Tooltip onOpen={tooltip.open} onClose={tooltip.close}>
 					{tooltip.content}
