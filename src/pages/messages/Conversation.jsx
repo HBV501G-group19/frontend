@@ -8,7 +8,6 @@ import { useRide, useConversation } from "../../hooks/useData";
 
 import { Column, Heading } from "../../components/styles";
 import { MessageForm } from "./components/MessageForm";
-import { addPassenger as ap } from "../../api/rides";
 
 import { MessageList } from "./components/MessageList";
 import { MapDispatch } from "../../map/Map";

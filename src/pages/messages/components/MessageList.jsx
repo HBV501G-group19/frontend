@@ -52,7 +52,7 @@ export const MessageList = ({ messages, sender, recipient, ride, token }) => {
 			{messages.map(message => (
 				<Message key={message.id} message={message} />
 			))}
-			{!approved && token && (
+			{!approved && sender.id === ride.driver && (
 				<ListItem>
 					<AddPassengerButton
 						passenger={recipient}
