@@ -14,6 +14,7 @@ import {
 	getConversationList,
 	getConversationPost
 } from "../api/messages";
+import { getRequest } from "../api/utils";
 
 const makeDataHook = request => (setState, defer = false, token, payload) => {
 	const [hasRun, setHasRun] = useState(false);
@@ -40,8 +41,7 @@ const makeDataHook = request => (setState, defer = false, token, payload) => {
 		if (data || error) {
 			setHasRun(true);
 		}
-		// setState identity is stable
-	}, [data]); // eslint-disable-line
+	}, [data, error, setState, setHasRun]);
 
 	return {
 		hasRun,
@@ -52,7 +52,6 @@ const makeDataHook = request => (setState, defer = false, token, payload) => {
 };
 
 export const useUser = makeDataHook(getUser);
-// export const useCreateUser = makeDataHook(createUser)
 
 export const useRide = makeDataHook(getRide);
 export const useCreateRide = makeDataHook(createRide);
@@ -66,3 +65,36 @@ export const useGeoname = makeDataHook(getGeoname);
 export const useConversation = makeDataHook(getConversation);
 export const useConversationPost = makeDataHook(getConversationPost);
 export const useConversationList = makeDataHook(getConversationList);
+
+const getFuel = getRequest("http://apis.is/petrol");
+
+export const useFuelCosts = distance => {
+	const [cost, setCost] = useState(0);
+	const { data, isPending, error, run } = useAsync({
+		deferFn: getFuel
+	});
+
+	useEffect(() => {
+		if (data) {
+			const { results } = data;
+			const avg = results.reduce(
+				(avg, { bensin95 }) => avg + bensin95 / results.length,
+				0
+			);
+			const costPkm = 0.1 * avg; // assume 10l/100km fuel consumption
+			const km = distance / 1000;
+			const _cost = costPkm * km;
+			setCost(Math.ceil(_cost / 500) * 500, 500); // round to nearest 500, with minimum of 500
+		} else {
+			run("");
+		}
+	}, [data, distance, run]);
+	console.log(distance);
+	console.log(data, cost);
+
+	return {
+		isPending,
+		error,
+		cost
+	};
+};

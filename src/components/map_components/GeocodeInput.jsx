@@ -24,6 +24,7 @@ const ListMarker = ({ feature, onClick = () => {} }) => {
 	const self = useRef(null);
 
 	const dispatchMarker = useBoundMarker({
+		id: feature.properties.id,
 		feature,
 		clean: false,
 		events: [
@@ -77,9 +78,9 @@ export const GeocodeInput = ({ setLocation, formLabel, options }) => {
 	const [value, setValue] = useState("");
 	const [submitted, setSubmitted] = useState(false);
 
-	const _setFeatures = featureCollection => {
+	const _setFeatures = useCallback(featureCollection => {
 		setFeatures(featureCollection.features);
-	};
+	}, []);
 
 	const coords = useLocationCoords();
 	const { isPending, error, run } = useGeocode(_setFeatures, true, token, {
@@ -96,6 +97,7 @@ export const GeocodeInput = ({ setLocation, formLabel, options }) => {
 			type: ACTIONS.REMOVEMULTI,
 			payload: removalIds
 		});
+
 		setFeatures([feature]);
 	};
 
@@ -110,6 +112,10 @@ export const GeocodeInput = ({ setLocation, formLabel, options }) => {
 	const focus = () => {
 		if (ref.current) ref.current.focus();
 	};
+
+	useEffect(() => {
+		console.log("changed", features);
+	}, [features]);
 
 	return (
 		<>
