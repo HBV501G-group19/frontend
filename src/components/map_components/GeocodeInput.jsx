@@ -85,7 +85,10 @@ export const GeocodeInput = ({ setLocation, formLabel, options }) => {
 	const coords = useLocationCoords();
 	const { isPending, error, run } = useGeocode(_setFeatures, true, token, {
 		geocode: value,
-		focus: coords
+		focus: {
+			type: "Point",
+			coordinates: coords
+		}
 	});
 
 	const removeOtherMarkers = features => id => {
